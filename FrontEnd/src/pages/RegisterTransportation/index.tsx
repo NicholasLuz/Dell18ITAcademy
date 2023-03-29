@@ -49,7 +49,6 @@ export function RegisterTransportation() {
       // armazenando a resposta do backend com as informações já prontas sobre distância, preços, caminhões
       const response = await fetch('http://localhost:3000/bestTrucks', requestOptions)
       const bestTrucks = await response.json()
-      console.log(bestTrucks)
       // armazenando no estado essas infos
       setSectionInfo(bestTrucks)
     }

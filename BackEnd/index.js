@@ -53,7 +53,6 @@ app.get('/distance', async (req, res, next) => {
 // criação da rota bestTrucks, que retorna um objeto com diversas informações, sendo a mais importante delas o preço por rota, além de quantos caminhões de cada tipo serão utilizados
 app.post('/bestTrucks', async (req, res, next) => {
   let itinerary = req.body
-  console.log(req.body)
   const truckSorter = require('./truckSorter')
   try {
     // a otimização dos preços e caminhões é feita na função abaixo
