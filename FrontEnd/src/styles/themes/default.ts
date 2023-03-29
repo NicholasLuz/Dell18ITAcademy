@@ -1,3 +1,4 @@
+// criação de um tema padrão com diferentes cores a serem utilizadas mais facilmente no css
 export const defaultTheme = {
   white: '#FFFFFF',
   black: '#000000',

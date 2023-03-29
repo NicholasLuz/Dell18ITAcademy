@@ -5,6 +5,7 @@ import { Home } from './pages/Home'
 import { RegisterTransportation } from './pages/RegisterTransportation'
 import { Report } from './pages/Report'
 
+// função das rotas, que define o layout default, com header e paginas, sendo cada pagina denotada com seu caminho especifico
 export function Router() {
   return (
     <Routes>

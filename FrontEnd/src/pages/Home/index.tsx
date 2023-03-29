@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { HomeContainer } from "./styles";
 
+// página home, que mostra as funcionalidades, podendo navegar entre elas
 export function Home() {
   return (
   <HomeContainer>

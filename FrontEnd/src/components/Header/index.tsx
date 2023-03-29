@@ -1,7 +1,7 @@
 import { HeaderContainer } from './styles'
-import { List} from 'phosphor-react'
 import { NavLink } from 'react-router-dom'
 
+// criação do header que será mostrado em todas páginas
 export function Header() {
   return (
     <HeaderContainer>

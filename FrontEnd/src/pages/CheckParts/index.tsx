@@ -1,26 +1,35 @@
 import React, { useEffect, useState } from 'react'
 import { FormContainer, BaseSelect, StartButton, HomeContainer } from './styles'
 
+// tipagem do trecho que será buscado
+interface searchSection {
+  from?: string,
+  to?: string,
+  truckType?: string
+}
+
+// tipagem das informações recebidas da busca no backend
+interface distanceAndPriceProps {
+  price: number
+  distance: string
+}
+
 export function CheckParts() {
+  // criação dos estados para as cidades do csv, dos tipos de caminhão, das informações do trecho, e do resultado da busca
   const [ cities, setCities] = useState([])
   const [ trucks, setTrucks] = useState([])
-  const [ selectedCity1, setSelectedCity1] = useState('')
-  const [ selectedCity2, setSelectedCity2] = useState('')
-  const [ selectedTruck, setSelectedTruck] = useState('')
-  const [ price, setPrice] = useState()
-  const [ distance, setDistance] = useState()
-  const [ initialCity, setInitialCity] = useState('')
-  const [ finalCity, setFinalCity] = useState('')
-  const [ truck1, setTruck1] = useState('')
+  const [ distanceAndPrice, setDistanceAndPrice ] = useState<distanceAndPriceProps>()
+  const [ searchSection, setSearchSection ] = useState<searchSection>()
 
+  // ja realiza na renderização a busca no backend pelas cidades do csv e os tipos de caminhão
   useEffect(() => {
     const loadCities = async () => {
-      const response = await fetch("http://localhost:3000/getCities")
+      const response = await fetch("http://localhost:3000/cities")
       const cities = await response.json()
       setCities(cities)
     }
     const loadTrucks = async () => {
-      const response = await fetch("http://localhost:3000/getTrucks")
+      const response = await fetch("http://localhost:3000/trucks")
       const trucks = await response.json()
       setTrucks(trucks)
     }
@@ -28,32 +37,41 @@ export function CheckParts() {
     loadTrucks()
   }, [])
 
-  function handleSelectCity1Change(event:React.ChangeEvent<HTMLSelectElement>) {
-    setSelectedCity1(event.target.value)
-  }
-  function handleSelectCity2Change(event:React.ChangeEvent<HTMLSelectElement>) {
-    setSelectedCity2(event.target.value)
-  }
-  function handleSelectTruckChange(event:React.ChangeEvent<HTMLSelectElement>) {
-    setSelectedTruck(event.target.value)
+  // lida com a mudança da cidade de origem
+  const handleSourceCityChange = (event:React.ChangeEvent<HTMLSelectElement>) => {
+    let sec = { ...searchSection }
+    sec.from = event.target.value
+    setSearchSection(sec)
   }
 
+  // lida com a mudança da cidade de destino
+  const handleDestinationCityChange = (event:React.ChangeEvent<HTMLSelectElement>) => {
+    let sec = { ...searchSection }
+    sec.to = event.target.value
+    setSearchSection(sec)
+  }
+
+  // lida com a mudança do tipo de caminhão
+  function handleSelectTruckChange(event:React.ChangeEvent<HTMLSelectElement>) {
+    let sec = { ...searchSection }
+    sec.truckType = event.target.value
+    setSearchSection(sec)
+  }
+
+  // lida com o envio do formulário, e logo da requisição ao backend das informações
   const handleSubmit = (e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const loadInfo = async () => {
-      const response = await fetch(`http://localhost:3000/getInfo?from=${selectedCity1}&to=${selectedCity2}&truck=${selectedTruck}`)
+      const response = await fetch(`http://localhost:3000/distance?from=${searchSection?.from}&to=${searchSection?.to}&truck=${searchSection?.truckType}`)
+      // armazena as informações obtidas de distância e preço no estado
       const { price, distance } = await response.json()
-      setPrice(price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }))
-      setDistance(distance)
+      setDistanceAndPrice({price, distance})
     }
     loadInfo()
-    setInitialCity(selectedCity1)
-    setFinalCity(selectedCity2)
-    setInitialCity(selectedCity1)
-    setTruck1(selectedTruck)
   }
 
-  let disableButton = (!selectedCity1) || (!selectedCity2) || (!selectedTruck)
+  // booleano para verificar se o formulário pode ser enviado ou não
+  let disableButton = (!searchSection?.from) || (!searchSection?.to) || (!searchSection?.truckType)
   
   return (
     <>
@@ -63,8 +81,8 @@ export function CheckParts() {
             <label htmlFor="from">De</label>
             <BaseSelect
               id="from"
-              value={selectedCity1}
-              onChange={handleSelectCity1Change}
+              value={searchSection?.from}
+              onChange={handleSourceCityChange}
             >
               <option value="">Selecione a cidade de partida</option>
               {cities.map((city, index) => {
@@ -82,8 +100,8 @@ export function CheckParts() {
             <label htmlFor="to">Para</label>
             <BaseSelect
               id="to"
-              value={selectedCity2}
-              onChange={handleSelectCity2Change}
+              value={searchSection?.to}
+              onChange={handleDestinationCityChange}
               placeholder="Digite cidade final"
             >
               <option value="">Selecione a cidade final</option>
@@ -102,7 +120,7 @@ export function CheckParts() {
           <label htmlFor="truck">Caminhão</label>
             <BaseSelect
               id="from"
-              value={selectedTruck}
+              value={searchSection?.truckType}
               onChange={handleSelectTruckChange}
             >
               <option value="">Selecione o porte do caminhão</option>
@@ -119,10 +137,10 @@ export function CheckParts() {
             Enviar
           </StartButton>
 
-          {(!!price && !!distance) ?
+          {(!!distanceAndPrice?.distance && !!distanceAndPrice?.price) ?
           (
             <p>
-              De {initialCity} para {finalCity}, utilizando um caminhão de porte {truck1}, a distância é de {distance}km e o custo será de {price}.
+              De {searchSection?.from} para {searchSection?.to}, utilizando um caminhão de porte {searchSection?.truckType}, a distância é de {Number(distanceAndPrice?.distance).toLocaleString('pt-BR')}km e o custo será de {distanceAndPrice?.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}.
             </p>
           )
           :

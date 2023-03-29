@@ -80,6 +80,10 @@ export const StartButton = styled.button`
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+
+    &:hover {
+      background-color: ${props => props.theme['base-button']};
+    }
   }
 
   &:hover {
